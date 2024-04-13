@@ -49,13 +49,6 @@ export default function App() {
                     firstPokemon.focus();
                 }
             }
-            const otherPokemon = document.getElementById("table_row_"+tableRowIndex);
-            if (event.key === "ArrowDown") {
-                //event.preventDefault();
-                if (otherPokemon) {
-                    otherPokemon.focus();
-                }
-            }
         };
 
         document.addEventListener("keydown", handleKeyPress);
