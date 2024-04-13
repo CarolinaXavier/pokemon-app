@@ -7,13 +7,21 @@ const client = axios.create({
 });
 
 export const AxiosClient = async (options: any) => {
-    const onSuccess = async (response: AxiosResponse<PokemonsResultInterface, any>) => {
+    const onSuccess = async (
+        response: AxiosResponse<PokemonsResultInterface, any>
+    ) => {
         const pokemons = response.data.results;
-        const pokemonDetailPromises = pokemons.map(async (pokemon: PokemonInterface) => {
-            const pokemonDetailResponse = await axios.get(pokemon.url);
-            const { abilities, sprites } = pokemonDetailResponse.data;
-            return { ...pokemon, details: { abilities, sprites } };
-        });
+        const pokemonDetailPromises = pokemons.map(
+            async (pokemon: PokemonInterface) => {
+                const pokemonDetailResponse = await axios.get(pokemon.url);
+                const { abilities, sprites } = pokemonDetailResponse.data;
+                const { back_default } = sprites;
+                return {
+                    ...pokemon,
+                    details: { abilities, sprites: { back_default: back_default } },
+                };
+            }
+        );
         const pokemonsWithDetails = await Promise.all(pokemonDetailPromises);
         return pokemonsWithDetails;
     };
@@ -30,4 +38,3 @@ export const getPokemons = () =>
         url: `/pokemon?limit=100000&offset=0`,
         method: "GET",
     });
-

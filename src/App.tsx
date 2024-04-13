@@ -29,19 +29,11 @@ export default function App() {
     const [filteredPokemons, setFilteredPokemons] =
         useState<PokemonInterface[]>();
     const [isSearch, setIsSearch] = useState<boolean>(false);
-    const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
     useEffect(() => {
         if (data) {
-            setFilteredPokemons(
-                data.map((d) => {
-                    d = {
-                        ...d,
-                        bgClass: BackgroundColor(),
-                    };
-                    return d;
-                })
-            );
+            setFilteredPokemons(data);
+            console.log(data);
         }
 
         const handleKeyPress = (event: any) => {
@@ -86,14 +78,6 @@ export default function App() {
         debounced(value.name);
     };
 
-    const handleMouseEnter = (rowId: number) => {
-        setHoveredRow(rowId);
-    };
-
-    const handleMouseLeave = () => {
-        //setHoveredRow(null);
-    };
-
     if (isLoading) {
         return <LoadingComponent />;
     }
@@ -135,17 +119,14 @@ export default function App() {
                                 {filteredPokemons.map((pokemon: any, index: number) => {
                                     return (
                                         <TableRow
-                                            className="hover:bg-gray-100 focus:outline-none focus:ring focus:ring-gray-300 focus:bg-gray-100"
+                                            className="border-0 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
                                             key={index}
                                             id={"table_row_" + index}
                                             tabIndex={0}
-                                            onMouseEnter={() => handleMouseEnter(index)}
-                                            onMouseLeave={handleMouseLeave}
-
-                                        /*   className={`hover:bg-gray-500 focus:bg-gray-500 ${hoveredRow === index ? "bg-gray-500" : ""
-                                                        }`} */
+                                            onMouseEnter={() => console.log('table_row_'+index)}
+                                            onMouseLeave={() => { }}
                                         >
-                                            <TableCell className="px-0">
+                                            <TableCell className="rounded-md">
                                                 <Avatar className="flex">
                                                     <AvatarImage
                                                         src={pokemon.details.sprites.back_default}
@@ -154,7 +135,7 @@ export default function App() {
                                                     />
                                                     <AvatarFallback>
                                                         <div
-                                                            className={`w-12 h-12 flex items-center justify-center rounded-full mr-4 ${pokemon.bgClass}`}
+                                                            className={`w-12 h-12 flex items-center justify-center rounded-full mr-4 ${BackgroundColor()}`}
                                                         >
                                                             <span className="text-white text-lg font-bold">
                                                                 {Initials(pokemon.name)}
