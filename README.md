@@ -34,7 +34,12 @@ export default {
 $ npm install -D tailwindcss postcss autoprefixer
 $ npx tailwindcss init -p
 $ npm i -D @types/node
+$ npm install lucide-react
+$ npm install @radix-ui/react-icons
 
 $ npm i axios
 $ npm i react-query
+
+$ npm i react-hook-form
+$ npm i use-debounce
 ```
