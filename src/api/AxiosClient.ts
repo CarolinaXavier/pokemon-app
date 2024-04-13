@@ -11,7 +11,8 @@ export const AxiosClient = async (options: any) => {
         const pokemons = response.data.results;
         const pokemonDetailPromises = pokemons.map(async (pokemon: PokemonInterface) => {
             const pokemonDetailResponse = await axios.get(pokemon.url);
-            return { ...pokemon, details: pokemonDetailResponse.data };
+            const { abilities, sprites } = pokemonDetailResponse.data;
+            return { ...pokemon, details: { abilities, sprites } };
         });
         const pokemonsWithDetails = await Promise.all(pokemonDetailPromises);
         return pokemonsWithDetails;

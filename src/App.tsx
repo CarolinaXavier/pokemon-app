@@ -8,12 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { getPokemons } from "./api/AxiosClient";
 import { Input } from "./components/ui/input";
 import { Initials } from "./utils/Initials.util";
-import { BackgroundColor } from "./utils/BackgroundColor.util";
 import { useEffect, useState } from "react";
 import { PokemonInterface } from "./interfaces/Pokemon.interface";
 import { Search } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useDebouncedCallback } from "use-debounce";
+import { FilterPokemons } from "./utils/FilterPokemons.util";
+import { BackgroundColor } from "./utils/BackgroundColor.util";
 
 type inputs = {
     name: string;
@@ -25,13 +26,22 @@ export default function App() {
         queryFn: getPokemons,
     });
 
-    const [filteredPokemons, setFilteredPokemons] = useState<PokemonInterface[]>(
-        []
-    );
+    const [filteredPokemons, setFilteredPokemons] =
+        useState<PokemonInterface[]>();
+    const [isSearch, setIsSearch] = useState<boolean>(false);
+    const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
     useEffect(() => {
         if (data) {
-            setFilteredPokemons(data);
+            setFilteredPokemons(
+                data.map((d) => {
+                    d = {
+                        ...d,
+                        bgClass: BackgroundColor(),
+                    };
+                    return d;
+                })
+            );
         }
 
         const handleKeyPress = (event: any) => {
@@ -44,7 +54,7 @@ export default function App() {
 
         const handleKeyDown = (event: any) => {
             const searchInput = document.getElementById("searchInput");
-            const firstPokemon = document.getElementById("firstPokemon");
+            const firstPokemon = document.getElementById("table_row_0");
             if (event.key === "ArrowDown" && document.activeElement === searchInput) {
                 event.preventDefault();
                 if (firstPokemon) {
@@ -61,11 +71,12 @@ export default function App() {
     }, [data]);
 
     const debounced = useDebouncedCallback((value: string) => {
+        setIsSearch(true);
         if (data) {
-            const filteredPokemons = data.filter((pokemon) =>
-                pokemon.name.includes(value.toLocaleLowerCase())
-            );
-            setFilteredPokemons(filteredPokemons);
+            FilterPokemons(data, value).then((filteredPokemons) => {
+                setFilteredPokemons(filteredPokemons);
+                setIsSearch(false);
+            });
         }
     }, 500);
 
@@ -73,6 +84,14 @@ export default function App() {
 
     const onSubmit: SubmitHandler<inputs> = async (value) => {
         debounced(value.name);
+    };
+
+    const handleMouseEnter = (rowId: number) => {
+        setHoveredRow(rowId);
+    };
+
+    const handleMouseLeave = () => {
+        //setHoveredRow(null);
     };
 
     if (isLoading) {
@@ -99,72 +118,94 @@ export default function App() {
                     <Search className="w-3 h-3 mr-2" />
                 </div>
 
-                <Table>
-                    {filteredPokemons.length ? (
-                        <TableBody>
-                            {filteredPokemons.map((pokemon: any, index: number) => {
-                                return (
-                                    <TableRow
-                                        key={index}
-                                        id={index === 0 ? "firstPokemon" : undefined}
-                                        tabIndex={0}
-                                    >
-                                        <TableCell className="px-0">
-                                            <Avatar className="flex">
-                                                <AvatarImage
-                                                    src={pokemon.details.sprites.back_default}
-                                                    alt={pokemon.name + " avatar"}
-                                                    className="w-12 h-12 rounded-full mr-4 bg-secondary"
-                                                />
-                                                <AvatarFallback>
-                                                    <div
-                                                        className={`w-12 h-12 flex items-center justify-center rounded-full mr-4 ${BackgroundColor()}`}
-                                                    >
-                                                        <span className="text-white text-lg font-bold">
-                                                            {Initials(pokemon.name)}
-                                                        </span>
-                                                    </div>
-                                                </AvatarFallback>
-                                                <div>
-                                                    <h4 className="text-lg capitalize">
-                                                        {pokemon.name.replaceAll("-", " ")}
-                                                    </h4>
-                                                    <div className="flex flex-wrap">
-                                                        {pokemon.details.abilities.map(
-                                                            (abilityObject: any, index: number) => {
-                                                                return (
-                                                                    <div key={index}>
-                                                                        <Badge
-                                                                            variant="secondary"
-                                                                            className="mr-2 capitalize"
-                                                                        >
-                                                                            {abilityObject.ability.name.replaceAll(
-                                                                                "-",
-                                                                                " "
-                                                                            )}
-                                                                        </Badge>
-                                                                    </div>
-                                                                );
-                                                            }
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </Avatar>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    ) : (
+                {isSearch ? (
+                    <Table>
                         <TableBody>
                             <TableRow>
                                 <TableCell>
-                                    <p>Nenhum pokemon encontrado!</p>
+                                    <p>Pesquisando...</p>
                                 </TableCell>
                             </TableRow>
                         </TableBody>
-                    )}
-                </Table>
+                    </Table>
+                ) : (
+                    <Table>
+                        {filteredPokemons && filteredPokemons.length ? (
+                            <TableBody>
+                                {filteredPokemons.map((pokemon: any, index: number) => {
+                                    return (
+                                        <TableRow
+                                            className="hover:bg-gray-100 focus:outline-none focus:ring focus:ring-gray-300 focus:bg-gray-100"
+                                            key={index}
+                                            id={"table_row_" + index}
+                                            tabIndex={0}
+                                            onMouseEnter={() => handleMouseEnter(index)}
+                                            onMouseLeave={handleMouseLeave}
+
+                                        /*   className={`hover:bg-gray-500 focus:bg-gray-500 ${hoveredRow === index ? "bg-gray-500" : ""
+                                                        }`} */
+                                        >
+                                            <TableCell className="px-0">
+                                                <Avatar className="flex">
+                                                    <AvatarImage
+                                                        src={pokemon.details.sprites.back_default}
+                                                        alt={pokemon.name + " avatar"}
+                                                        className="w-12 h-12 rounded-full mr-4 bg-secondary"
+                                                    />
+                                                    <AvatarFallback>
+                                                        <div
+                                                            className={`w-12 h-12 flex items-center justify-center rounded-full mr-4 ${pokemon.bgClass}`}
+                                                        >
+                                                            <span className="text-white text-lg font-bold">
+                                                                {Initials(pokemon.name)}
+                                                            </span>
+                                                        </div>
+                                                    </AvatarFallback>
+                                                    <div>
+                                                        <h4 className="text-lg capitalize">
+                                                            {pokemon.name.replaceAll("-", " ")}
+                                                        </h4>
+                                                        <div className="flex flex-wrap">
+                                                            {pokemon.details.abilities.map(
+                                                                (abilityObject: any, index: number) => {
+                                                                    return (
+                                                                        <div key={index}>
+                                                                            <Badge
+                                                                                variant="secondary"
+                                                                                className="mr-2 mb-2 md:mb-0 text-xs capitalize"
+                                                                            >
+                                                                                {abilityObject.ability.name.replaceAll(
+                                                                                    "-",
+                                                                                    " "
+                                                                                )}
+                                                                            </Badge>
+                                                                        </div>
+                                                                    );
+                                                                }
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </Avatar>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        ) : (
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell>
+                                        {filteredPokemons === undefined ? (
+                                            <p>Carregando pokemons...</p>
+                                        ) : (
+                                            <p>Nenhum pokemon encontrado!</p>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        )}
+                    </Table>
+                )}
             </div>
         );
     }

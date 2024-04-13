@@ -13,4 +13,5 @@ export interface PokemonInterface {
             back_default: string;
         };
     };
+    bgClass: string;
 }
