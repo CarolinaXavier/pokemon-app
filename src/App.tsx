@@ -115,7 +115,7 @@ export default function App() {
                                 {filteredPokemons.map((pokemon: any, index: number) => {
                                     return (
                                         <TableRow
-                                            className="border-0 hover:bg-gray-100 focus:outline-none focus:bg-blue-100"
+                                            className="border-0 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
                                             key={index}
                                             id={"table_row_" + index}
                                             tabIndex={0}
