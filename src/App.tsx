@@ -100,7 +100,7 @@ export default function App() {
                 </div>
 
                 <Table>
-                    {filteredPokemons.length && !isLoading ? (
+                    {filteredPokemons.length ? (
                         <TableBody>
                             {filteredPokemons.map((pokemon: any, index: number) => {
                                 return (
