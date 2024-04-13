@@ -29,11 +29,11 @@ export default function App() {
     const [filteredPokemons, setFilteredPokemons] =
         useState<PokemonInterface[]>();
     const [isSearch, setIsSearch] = useState<boolean>(false);
+    const [tableRowIndex, setTableRowIndex] = useState<number>(0);
 
     useEffect(() => {
         if (data) {
             setFilteredPokemons(data);
-            console.log(data);
         }
 
         const handleKeyPress = (event: any) => {
@@ -42,10 +42,6 @@ export default function App() {
                 event.preventDefault();
                 searchInput?.focus();
             }
-        };
-
-        const handleKeyDown = (event: any) => {
-            const searchInput = document.getElementById("searchInput");
             const firstPokemon = document.getElementById("table_row_0");
             if (event.key === "ArrowDown" && document.activeElement === searchInput) {
                 event.preventDefault();
@@ -53,14 +49,20 @@ export default function App() {
                     firstPokemon.focus();
                 }
             }
+            const otherPokemon = document.getElementById("table_row_"+tableRowIndex);
+            if (event.key === "ArrowDown") {
+                //event.preventDefault();
+                if (otherPokemon) {
+                    otherPokemon.focus();
+                }
+            }
         };
+
         document.addEventListener("keydown", handleKeyPress);
-        document.addEventListener("keydown", handleKeyDown);
         return () => {
             document.removeEventListener("keydown", handleKeyPress);
-            document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [data]);
+    }, [data, tableRowIndex]);
 
     const debounced = useDebouncedCallback((value: string) => {
         setIsSearch(true);
@@ -88,12 +90,13 @@ export default function App() {
 
     if (data) {
         return (
-            <div className="p-6 max-w-lg mx-auto">
+            <div className="px-6 pb-6 max-w-lg mx-auto">
                 <div
                     onChange={handleSubmit(onSubmit)}
-                    className="flex w-full max-w-lg items-center space-x-2 mb-12"
+                    className="flex w-full max-w-lg items-center space-x-2 sticky pt-6 mb-6 top-0 z-10 bg-white"
                 >
                     <Input
+                        className="shadow-lg"
                         id="searchInput"
                         type="text"
                         placeholder="Pesquise pelo nome"
@@ -119,11 +122,13 @@ export default function App() {
                                 {filteredPokemons.map((pokemon: any, index: number) => {
                                     return (
                                         <TableRow
-                                            className="border-0 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
+                                            className="border-0 hover:bg-gray-100 focus:outline-none focus:bg-blue-100"
                                             key={index}
                                             id={"table_row_" + index}
                                             tabIndex={0}
-                                            onMouseEnter={() => console.log('table_row_'+index)}
+                                            onMouseEnter={() => {
+                                                setTableRowIndex(index);
+                                            }}
                                             onMouseLeave={() => { }}
                                         >
                                             <TableCell className="rounded-md">
