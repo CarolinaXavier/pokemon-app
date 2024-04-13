@@ -33,12 +33,37 @@ export default function App() {
         if (data) {
             setFilteredPokemons(data);
         }
+
+        const handleKeyPress = (event: any) => {
+            const searchInput = document.getElementById("searchInput");
+            if ((event.ctrlKey || event.metaKey) && event.key === "/") {
+                event.preventDefault();
+                searchInput?.focus();
+            }
+        };
+
+        const handleKeyDown = (event: any) => {
+            const searchInput = document.getElementById("searchInput");
+            const firstPokemon = document.getElementById("firstPokemon");
+            if (event.key === "ArrowDown" && document.activeElement === searchInput) {
+                event.preventDefault();
+                if (firstPokemon) {
+                    firstPokemon.focus();
+                }
+            }
+        };
+        document.addEventListener("keydown", handleKeyPress);
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyPress);
+            document.removeEventListener("keydown", handleKeyDown);
+        };
     }, [data]);
 
-    const debounced = useDebouncedCallback((value) => {
+    const debounced = useDebouncedCallback((value: string) => {
         if (data) {
             const filteredPokemons = data.filter((pokemon) =>
-                pokemon.name.includes(value)
+                pokemon.name.includes(value.toLocaleLowerCase())
             );
             setFilteredPokemons(filteredPokemons);
         }
@@ -50,7 +75,7 @@ export default function App() {
         debounced(value.name);
     };
 
-    if (isLoading) {
+    if (isLoading && !filteredPokemons.length) {
         return <LoadingComponent />;
     }
 
@@ -58,7 +83,7 @@ export default function App() {
         return <ErrorComponent />;
     }
 
-    if (filteredPokemons) {
+    if (data && filteredPokemons.length) {
         return (
             <div className="p-6 max-w-lg mx-auto">
                 <div
@@ -66,6 +91,7 @@ export default function App() {
                     className="flex w-full max-w-lg items-center space-x-2 mb-12"
                 >
                     <Input
+                        id="searchInput"
                         type="text"
                         placeholder="Pesquise pelo nome"
                         {...register("name", { required: false })}
@@ -77,8 +103,12 @@ export default function App() {
                     <TableBody>
                         {filteredPokemons.map((pokemon: any, index: number) => {
                             return (
-                                <TableRow key={index}>
-                                    <TableCell>
+                                <TableRow
+                                    key={index}
+                                    id={index === 0 ? "firstPokemon" : undefined}
+                                    tabIndex={0}
+                                >
+                                    <TableCell className="px-0">
                                         <Avatar className="flex">
                                             <AvatarImage
                                                 src={pokemon.details.sprites.back_default}
