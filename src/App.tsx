@@ -3,7 +3,7 @@ import "./globals.css";
 import { useQuery } from "react-query";
 import { LoadingComponent } from "./LoadingComponent";
 import { ErrorComponent } from "./ErrorComponent";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Badge } from "@/components/ui/badge";
 import { getPokemons } from "./api/AxiosClient";
 import { Input } from "./components/ui/input";
