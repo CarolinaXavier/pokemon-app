@@ -35,6 +35,6 @@ export const AxiosClient = async (options: any) => {
 
 export const getPokemons = () =>
     AxiosClient({
-        url: `/pokemon?limit=100000&offset=0`,
+        url: `/pokemon?limit=500&offset=0`,
         method: "GET",
     });

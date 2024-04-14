@@ -126,11 +126,6 @@ export default function App() {
                                         >
                                             <TableCell className="rounded-md">
                                                 <Avatar className="flex">
-                                                    <AvatarImage
-                                                        src={pokemon.details.sprites.back_default}
-                                                        alt={pokemon.name + " avatar"}
-                                                        className="w-12 h-12 rounded-full mr-4 bg-secondary"
-                                                    />
                                                     <AvatarFallback>
                                                         <div
                                                             className={`w-12 h-12 flex items-center justify-center rounded-full mr-4 ${BackgroundColor()}`}
